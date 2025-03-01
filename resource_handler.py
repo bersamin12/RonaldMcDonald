@@ -16,7 +16,7 @@ from pytubefix import YouTube
 from pytubefix.cli import on_progress
 
 # time for unique file names
-dl_time = int(time.time()//10000)
+dl_time = int(time.time()) - 1740840000
 
 # please use this API sparingly, as it is a paid API
 # flag to enable actual API calls
@@ -44,16 +44,19 @@ def tiktokHandler(url: str):
     # TikTok handler
     if not USE_API:
         print("API not enabled")
-        resultData = json.load(open(os.path.join("logs","tiktok_data.json"))) # default to the testing
+        resultData = json.load(open(os.path.join("logs","tiktok_data_7558.json"))) # default to the testing
 
-    else: resultData = client.tiktok.post_info(url=url).data
+    else:
+        resultData = client.tiktok.post_info(url=url).data
 
-    # save result.data to logs/ using os path so that it supports windows paths
-    with open(os.path.join("logs", f"tiktok_data_{dl_time}.json"), "w") as f:
-        f.write(resultData)
+        # save result.data to logs/ using os path so that it supports windows paths
+        with open(os.path.join("logs", f"tiktok_data_{dl_time}.json"), "w") as f:
+            json.dump(resultData[0], f)
+
+        resultData=resultData[0]
 
     # download video to resource/ using os path so that it supports windows paths and requests
-    video = requests.get(resultData.video.download_addr.url_list[0])
+    video = requests.get(resultData['video']['download_addr']['url_list'][0])
     with open(os.path.join("resource", f"tiktok_{dl_time}.mp4"), "wb") as f:
         f.write(video.content)
 
@@ -64,11 +67,11 @@ def instagramHandler(url: str):
     code = url.split("/")[-2]
     if not USE_API:
         print("API not enabled")
-        resultData = json.load(open(os.path.join("logs","instagram_data.json")))
+        resultData = json.load(open(os.path.join("logs","instagram_data.json")))['data']
     else: resultData = client.instagram.post_info_and_comments(code=code,num_comments=0).data
 
     # download the video
-    video = requests.get(resultData.video_url)
+    video = requests.get(resultData['video_url'])
     with open(os.path.join("resource", f"instagram_{dl_time}.mp4"), "wb") as f:
         f.write(video.content)
 
@@ -86,9 +89,6 @@ def youtubeHandler(url: str):
 
 
 
-
-
 if __name__ == "__main__":
-    url = "https://www.instagram.com/reels/DFoV0rzP68Y/"
-    print(instagramHandler(url))
-    pass
+    url = "https://www.tiktok.com/@nianaguerrero/video/7465679997978610951?is_from_webapp=1&sender_device=pc"
+    print(resourceHandler(url))
