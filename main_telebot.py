@@ -10,6 +10,10 @@ SAVE_DIR = "src"
 # Ensure the 'src' folder exists
 os.makedirs(SAVE_DIR, exist_ok=True)
 
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+	bot.reply_to(message, "Howdy, how are you doing? type /save to save a file!")
+
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
     file_id = message.photo[-1].file_id
@@ -38,6 +42,7 @@ def handle_video(message):
     
     bot.reply_to(message, f"Video saved as {file_path}!")
 
+@bot.message_handler(commands=['save'])
 def polling():
     while True:
         try:
