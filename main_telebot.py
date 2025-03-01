@@ -24,6 +24,20 @@ def handle_photo(message):
     
     bot.reply_to(message, f"Image saved as {file_path}!")
 
+@bot.message_handler(content_types=['video'])
+def handle_video(message):
+    file_id = message.video.file_id
+    file_info = bot.get_file(file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+    
+    filename = f"video_{int(time.time())}.mp4"  # Unique filename
+    file_path = os.path.join(SAVE_DIR, filename)  # Save inside 'src' folder
+
+    with open(file_path, "wb") as video_file:
+        video_file.write(downloaded_file)
+    
+    bot.reply_to(message, f"Video saved as {file_path}!")
+
 def polling():
     while True:
         try:
