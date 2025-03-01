@@ -55,6 +55,20 @@ def tiktokHandler(url: str):
 
     return os.path.join("resource", f"tiktok_{dl_time}.mp4")
 
+def instagramHandler(url: str):
+    # extract the shortcode from the url of this form https://www.instagram.com/reels/DFoV0rzP68Y/
+    code = url.split("/")[-2]
+    if not USE_API:
+        print("API not enabled")
+        resultData = json.load(open(os.path.join("logs","instagram_data.json")))
+    else: resultData = client.instagram.post_info_and_comments(code=code,num_comments=0).data
+
+    # download the video
+    video = requests.get(resultData.video_url)
+    with open(os.path.join("resource", f"instagram_{dl_time}.mp4"), "wb") as f:
+        f.write(video.content)
+
+    return os.path.join("resource", f"instagram_{dl_time}.mp4")
 
 def youtubeHandler(url: str):
     yt = YouTube(url)
@@ -67,10 +81,10 @@ def youtubeHandler(url: str):
     return os.path.join("resource", f"youtube_{dl_time}.mp4")
 
 
-def instagramHandler(url: str):
-    pass
+
+
 
 if __name__ == "__main__":
-    url = "https://www.youtube.com/watch?v=FW2XOIxaNqg&t=19s"
-    # test youtube
-    print(youtubeHandler(url))
+    # url = "https://www.instagram.com/reels/DFoV0rzP68Y/"
+    # print(instagramHandler(url))
+    pass

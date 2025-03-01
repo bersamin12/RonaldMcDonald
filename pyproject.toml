@@ -5,9 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "dotenv>=0.9.9",
     "ensembledata>=0.2.4",
     "facebook-scraper>=0.2.59",
     "groq>=0.18.0",
+    "instagrapi>=2.1.3",
+    "pillow>=11.1.0",
+    "pytelegrambotapi>=4.26.0",
     "pytubefix>=8.12.2",
     "tiktokapi>=7.0.0",
 ]
