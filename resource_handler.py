@@ -8,7 +8,7 @@ import os, time, json
 
 from ensembledata.api import EDClient
 import constants # make a constants.py file and define API keys
-
+from textscraper import scrape_article
 # YouTube resource getter
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
@@ -33,8 +33,8 @@ def resourceHandler(url: str):
     elif "insta" in url:
         return instagramHandler(url)
     else:
-        # maybe can do secondary checks to see if its a news site or something similar
-        print('pass for now')
+        scrape_article(url)
+
 
 def tiktokHandler(url: str):
     # TikTok handler
