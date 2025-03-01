@@ -1,9 +1,11 @@
+bot.py:
+----
 import time
 import telebot
 import os
 from dotenv import load_dotenv
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from groqllm_prompted import check_for_urls, check_misinformation
+from groqllm_prompted import check_misinformation
 
 load_dotenv()
 
@@ -78,7 +80,6 @@ def handle_analysis_input(message):
     if step == "await_input" and message.content_type in ['text', 'photo']:
         if message.content_type == 'text':
             analyze_requests[chat_id]["text"] = message.text
-            urls = check_for_urls(analyze_requests[chat_id]["text"])
         elif message.content_type == 'photo':
             file_id = message.photo[-1].file_id
             file_info = bot.get_file(file_id)
@@ -89,7 +90,6 @@ def handle_analysis_input(message):
 
     if step == "await_text" and message.content_type == 'text':
         analyze_requests[chat_id]["text"] = message.text
-        urls = check_for_urls(analyze_requests[chat_id]["text"])
         bot.send_message(chat_id, "✅ Now send the image.")
         analyze_requests[chat_id]["step"] = "await_image"
         return
@@ -128,3 +128,6 @@ try:
     bot.polling(none_stop=True, interval=0, allowed_updates=["message", "callback_query", "edited_message", "channel_post", "edited_channel_post"])
 except KeyboardInterrupt:
     print("Bot stopped.")
+----
+
+For await_text and await_input steps, check for url
