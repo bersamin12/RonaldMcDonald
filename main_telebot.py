@@ -3,7 +3,8 @@ import telebot
 import os
 from dotenv import load_dotenv
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from groqllm_prompted import check_for_urls, check_misinformation
+from groqllm_prompted import im2text
+from exallm import web_search
 
 load_dotenv()
 
@@ -116,8 +117,10 @@ def process_analysis(chat_id, message):
     elif image_path:
         bot.send_message(chat_id, "⏳ Analyzing image content for misinformation...")
     
-    result = check_misinformation(text_input=user_text, image_path=image_path)
+    result = im2text(text_input=user_text, image_path=image_path)
+    web_search_result = web_search(result)
     bot.send_message(chat_id, result)
+    bot.send_message(chat_id, web_search_result)
 
     # Remove user from analyze_requests after processing
     analyze_requests.pop(chat_id, None)
