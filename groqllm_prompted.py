@@ -68,11 +68,11 @@ def im2text(text_input, image_path):
     return chat_completion.choices[0].message.content
 
 
-def final_analysis(summaries: list, original_content):
+def final_analysis(original_content, summaries=None):
     nl = "\n"
-    sys_prompt = f"""You are a fact-checker. Here is an assertion made by a piece of content\n: {original_content}.
-    You are given the following facts, which can be taken to be true. THese are facts that have been searched for online. {(summary+nl for summary in summaries)}\n\n
-    """
+    sys_prompt = "You are a fact-checker. Here is an assertion made by a piece of content\n: {original_content}."
+    if summaries: sys_prompt += f"You are given the following facts, which can be taken to be true. These are facts that have been searched for online. {('Statement: '+summary+nl for summary in summaries)}\n\n"
+
     chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -82,7 +82,7 @@ def final_analysis(summaries: list, original_content):
             # Set a user message for the assistant to respond to.
             {
                 "role": "user",
-                "content": "Please verify the contents provided against the facts provided and provide a verdict. Is what the content alleging true or false?\n Give a brief explanation for your answer.",
+                "content": "Please verify the contents provided against the facts provided, and provide a verdict. Is what the content alleging true or false?\n Give a brief explanation for your answer.",
             }
         ],
 
