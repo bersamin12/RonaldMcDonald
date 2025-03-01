@@ -1,5 +1,7 @@
 # RonaldMcDonald
 
+# Live on Telegram! @DLWqr1bot
+## Try it out!
 File structure
 
 .
@@ -20,9 +22,14 @@ Recommended: Use uv and install the dependencies using `uv sync`
 otherwise, pip install -r requirements.txt with your python 3.11 environment, but then you will need to update this list manually.
 
 
-.env: **CREATE** this file on your local machine and copy the API keys here
+.env: **CREATE** this file on your local machine and copy the API keys here. 
+API Keys include: Telegram Bot API, EnsembleData API, ExaAI, GroqAPI.
 resourcehandler: routes to functions that handle resource downloads. puts it in resource folder
 
+# How to use Telegram bot?
+After running the API keys, run python main_telebot.py
+
+Send /analyze to analyze any photos, texts, or links from social media websites Youtube, Instagram, and various news articles.
 # Tech Stack Overview
 
 
@@ -30,7 +37,7 @@ resourcehandler: routes to functions that handle resource downloads. puts it in 
 - **Telegram Bot API**: Interface for building bots on Telegram
 - **Python**: Main programming language
 - **EnsembleData API**: Web scraping services for social media platforms
-- **ExaData API**: Web search capabilities
+- **ExaAI API**: Web search capabilities
 - **Groq API**: AI model hosting and inference
   - llama-3.2-11b-vision-preview: Multimodal vision model
   - whisper-large-v3: Audio transcription model
