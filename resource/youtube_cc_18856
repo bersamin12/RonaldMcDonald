@@ -1,0 +1,331 @@
+1
+00:00:00,080 --> 00:00:04,560
+firebase a suite of tools for building
+
+2
+00:00:02,399 --> 00:00:06,480
+apps and managing infrastructure on top
+
+3
+00:00:04,560 --> 00:00:09,360
+of google cloud platform it was founded
+
+4
+00:00:06,480 --> 00:00:10,880
+by james tamplin and andrew lee in 2011
+
+5
+00:00:09,360 --> 00:00:12,880
+after they discovered that developers
+
+6
+00:00:10,880 --> 00:00:15,280
+were using their chat software to manage
+
+7
+00:00:12,880 --> 00:00:17,359
+non-chat application data this inspired
+
+8
+00:00:15,280 --> 00:00:19,439
+them to create a real-time database a
+
+9
+00:00:17,359 --> 00:00:21,279
+json database that automatically stays
+
+10
+00:00:19,439 --> 00:00:23,199
+in sync with your front-end application
+
+11
+00:00:21,279 --> 00:00:25,119
+it was later expanded to support user
+
+12
+00:00:23,199 --> 00:00:27,199
+authentication and website hosting to
+
+13
+00:00:25,119 --> 00:00:29,439
+act as a complete backend as a service
+
+14
+00:00:27,199 --> 00:00:31,119
+in 2014 it was acquired by google where
+
+15
+00:00:29,439 --> 00:00:32,880
+it was further expanded with serverless
+
+16
+00:00:31,119 --> 00:00:34,960
+computing via cloud functions push
+
+17
+00:00:32,880 --> 00:00:37,120
+notifications via cloud messaging and
+
+18
+00:00:34,960 --> 00:00:39,760
+other google services like analytics and
+
+19
+00:00:37,120 --> 00:00:41,520
+admob in 2017 google acquired fabric
+
+20
+00:00:39,760 --> 00:00:43,360
+from twitter and also launched a new
+
+21
+00:00:41,520 --> 00:00:45,360
+document database called firestore to
+
+22
+00:00:43,360 --> 00:00:46,879
+support a wider range of applications
+
+23
+00:00:45,360 --> 00:00:48,480
+most importantly though firebase
+
+24
+00:00:46,879 --> 00:00:50,480
+provides software development kits for
+
+25
+00:00:48,480 --> 00:00:52,160
+virtually every platform to manage and
+
+26
+00:00:50,480 --> 00:00:54,239
+scale this infrastructure with little to
+
+27
+00:00:52,160 --> 00:00:55,760
+no back-end code to build a full stack
+
+28
+00:00:54,239 --> 00:00:57,760
+application right now create a free
+
+29
+00:00:55,760 --> 00:00:59,359
+firebase project then open up some code
+
+30
+00:00:57,760 --> 00:01:01,440
+for your favorite front-end platform
+
+31
+00:00:59,359 --> 00:01:02,879
+install the firebase sdk then connect it
+
+32
+00:01:01,440 --> 00:01:04,559
+to the cloud with your project
+
+33
+00:01:02,879 --> 00:01:06,000
+credentials once initialized you can
+
+34
+00:01:04,559 --> 00:01:07,920
+start interacting with your backend
+
+35
+00:01:06,000 --> 00:01:09,520
+resources first we might want to know if
+
+36
+00:01:07,920 --> 00:01:11,280
+the user is logged in or not we can
+
+37
+00:01:09,520 --> 00:01:13,200
+listen to the current user with the on
+
+38
+00:01:11,280 --> 00:01:14,960
+off state changed function the user will
+
+39
+00:01:13,200 --> 00:01:16,720
+be null at first but we can log them in
+
+40
+00:01:14,960 --> 00:01:18,320
+with their google account using the sign
+
+41
+00:01:16,720 --> 00:01:20,240
+in with pop-up function now that we have
+
+42
+00:01:18,320 --> 00:01:22,000
+a user logged in we might want to store
+
+43
+00:01:20,240 --> 00:01:23,759
+something in a database we can make a
+
+44
+00:01:22,000 --> 00:01:25,759
+reference to a document in firestore
+
+45
+00:01:23,759 --> 00:01:27,680
+then write json data to it while making
+
+46
+00:01:25,759 --> 00:01:29,600
+a reference to the current user's user
+
+47
+00:01:27,680 --> 00:01:31,680
+id but the amazing thing is that we can
+
+48
+00:01:29,600 --> 00:01:33,840
+listen to updates to that data in real
+
+49
+00:01:31,680 --> 00:01:35,920
+time by simply referencing the document
+
+50
+00:01:33,840 --> 00:01:37,439
+using the onsnapshot function anytime
+
+51
+00:01:35,920 --> 00:01:39,520
+the data changes on the server it'll be
+
+52
+00:01:37,439 --> 00:01:41,200
+reflected in the ui with zero latency
+
+53
+00:01:39,520 --> 00:01:43,040
+thanks to optimistic updates out of the
+
+54
+00:01:41,200 --> 00:01:44,880
+box but that doesn't seem very secure
+
+55
+00:01:43,040 --> 00:01:46,960
+how do we control who has access to the
+
+56
+00:01:44,880 --> 00:01:49,040
+database firestore security rules allow
+
+57
+00:01:46,960 --> 00:01:50,640
+you to define access control logic in a
+
+58
+00:01:49,040 --> 00:01:52,399
+simple readable format with common
+
+59
+00:01:50,640 --> 00:01:53,840
+expression language you can do almost
+
+60
+00:01:52,399 --> 00:01:55,360
+everything from the front end but when
+
+61
+00:01:53,840 --> 00:01:56,960
+you do need to run server-side code
+
+62
+00:01:55,360 --> 00:01:59,040
+firebase cloud functions provides a
+
+63
+00:01:56,960 --> 00:02:00,399
+tightly integrated serverless backend
+
+64
+00:01:59,040 --> 00:02:03,040
+not only does it allow you to create
+
+65
+00:02:00,399 --> 00:02:04,399
+http endpoints but functions can also be
+
+66
+00:02:03,040 --> 00:02:06,159
+triggered in the background based on
+
+67
+00:02:04,399 --> 00:02:07,439
+events that happen in your project like
+
+68
+00:02:06,159 --> 00:02:09,440
+rights to the database user
+
+69
+00:02:07,439 --> 00:02:11,280
+authentication events file uploads and
+
+70
+00:02:09,440 --> 00:02:13,520
+many others when developing locally
+
+71
+00:02:11,280 --> 00:02:15,440
+firebase has an emulator suite to run
+
+72
+00:02:13,520 --> 00:02:16,879
+and test your code in a mock environment
+
+73
+00:02:15,440 --> 00:02:18,560
+when it's time to deploy run the
+
+74
+00:02:16,879 --> 00:02:20,080
+firebase deploy command to push your
+
+75
+00:02:18,560 --> 00:02:22,080
+code to the cloud and allocate
+
+76
+00:02:20,080 --> 00:02:24,400
+infrastructure to run it at any scale
+
+77
+00:02:22,080 --> 00:02:26,000
+this has been firebase in 100 seconds if
+
+78
+00:02:24,400 --> 00:02:27,760
+you're ready to build a serious app with
+
+79
+00:02:26,000 --> 00:02:30,080
+firebase i can think of no better place
+
+80
+00:02:27,760 --> 00:02:31,920
+to learn than fireship io the web app i
+
+81
+00:02:30,080 --> 00:02:33,840
+built with firebase to teach firebase
+
+82
+00:02:31,920 --> 00:02:36,640
+thanks for watching and i will see you
+
+83
+00:02:33,840 --> 00:02:36,640
+in the next one

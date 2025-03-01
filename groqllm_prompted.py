@@ -71,7 +71,7 @@ def im2text(text_input, image_path):
 def final_analysis(original_content, summaries=None):
     nl = "\n"
     sys_prompt = "You are a fact-checker. Here is an assertion made by a piece of content\n: {original_content}."
-    if summaries: sys_prompt += f"You are given the following facts, which can be taken to be true. These are facts that have been searched for online. {('Statement: '+summary+nl for summary in summaries)}\n\n"
+    if summaries: sys_prompt += f"You are given the following facts, which can be taken to be true. These are facts that have been searched for online. {str(summaries)}\n\n"
 
     chat_completion = client.chat.completions.create(
         messages=[
@@ -115,3 +115,4 @@ def final_analysis(original_content, summaries=None):
 
     # Print the completion returned by the LLM.
     print(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content

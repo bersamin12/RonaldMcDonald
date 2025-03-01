@@ -23,3 +23,6 @@ def web_search(text="https://www.amazon.com/b?node=17938598011"):
     )
     summaries = [res.summary for res in result.results]
     return summaries
+
+# thing = web_search()
+# print(thing, type(thing), type(thing[0]))

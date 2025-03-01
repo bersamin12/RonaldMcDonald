@@ -1,10 +1,12 @@
 import time
 import telebot
 import os
+import re
 from dotenv import load_dotenv
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from groqllm_prompted import im2text
+from groqllm_prompted import im2text, final_analysis
 from exallm import web_search
+from resource_handler import resourceHandler
 
 load_dotenv()
 
@@ -24,47 +26,21 @@ def save_file(file_data, file_type):
 
     return file_path  # Return the saved file path
 
+# ✅ Dictionary to track analysis requests
+analyze_requests = {}
+
 # ✅ Function to handle /start and /help commands
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, "Howdy! Use /analyze to check for misinformation.")
-
-# ✅ Dictionary to track analysis requests
-analyze_requests = {}
+    bot.reply_to(message, "Howdy! Send either text or an image for analysis after using /analyze. I will process it and provide the analysis.")
 
 # ✅ Function to handle /analyze command
 @bot.message_handler(commands=['analyze'])
 def request_analysis(message):
-    markup = InlineKeyboardMarkup()
-    markup.row_width = 1
-    markup.add(
-        InlineKeyboardButton("Text or Image Only", callback_data="single"),
-        InlineKeyboardButton("Both Text and Image", callback_data="both")
-    )
-    bot.send_message(message.chat.id, "✅ Choose an option:", reply_markup=markup)
-    analyze_requests[message.chat.id] = {"user_id": message.from_user.id, "step": "choose_mode"}
+    bot.send_message(message.chat.id, "✅ Please send either text or an image for analysis.")
+    analyze_requests[message.chat.id] = {"user_id": message.from_user.id, "step": "await_input"}
 
-@bot.callback_query_handler(func=lambda call: call.data in ["single", "both"])
-def handle_callback_query(call):
-    chat_id = call.message.chat.id
-    user_id = call.from_user.id
-
-    if chat_id not in analyze_requests or analyze_requests[chat_id]["user_id"] != user_id:
-        return
-
-    mode = call.data
-    analyze_requests[chat_id]["mode"] = mode
-
-    if mode == "single":
-        bot.send_message(chat_id, "✅ Send text or an image for analysis.")
-        analyze_requests[chat_id]["step"] = "await_input"
-    elif mode == "both":
-        bot.send_message(chat_id, "✅ Send the text first.")
-        analyze_requests[chat_id]["step"] = "await_text"
-        analyze_requests[chat_id]["text"] = None
-        analyze_requests[chat_id]["image_path"] = None
-
-# ✅ Function to process user input for analysis
+# ✅ Function to handle user input (text or image)
 @bot.message_handler(content_types=['text', 'photo'])
 def handle_analysis_input(message):
     chat_id = message.chat.id
@@ -78,52 +54,58 @@ def handle_analysis_input(message):
 
     if step == "await_input" and message.content_type in ['text', 'photo']:
         if message.content_type == 'text':
-            analyze_requests[chat_id]["text"] = message.text
-            urls = check_for_urls(analyze_requests[chat_id]["text"])
+            bot.send_message(chat_id, "✅ Analyzing text content for misinformation...")
+
+            # Check for URL in text
+            url_pattern = r"https?://[^\s]+"  # Matches http:// or https:// followed by non-whitespace characters
+            urls = re.findall(url_pattern, message.text)
+
+            if urls:
+                final_result, web_facts = resourceHandler(url=urls[0], text=message.text, analyze_misinformation=True)
+            
+            else:
+                # Perform web search
+                web_facts = web_search(message.text)[0]  # Get first search summary
+                print(web_facts, type(web_facts))
+                # Final analysis including web search facts
+                final_result = final_analysis(original_content=message.text, summaries=web_facts)
+            
+            bot.send_message(chat_id, f"Web Search Findings: {web_facts}")
+            bot.send_message(chat_id, f"Final Verdict: {final_result}")
+        
         elif message.content_type == 'photo':
+            # If it's an image, process it using the im2text function
             file_id = message.photo[-1].file_id
             file_info = bot.get_file(file_id)
             downloaded_file = bot.download_file(file_info.file_path)
-            analyze_requests[chat_id]["image_path"] = save_file(downloaded_file, "jpg")
-        process_analysis(chat_id, message)
-        return
+            image_path = save_file(downloaded_file, "jpg")
+            
+            bot.send_message(chat_id, "✅ Analyzing image content for misinformation...")
+            
+            # Extract text from image
+            result = im2text(text_input=None, image_path=image_path)
 
-    if step == "await_text" and message.content_type == 'text':
-        analyze_requests[chat_id]["text"] = message.text
-        urls = check_for_urls(analyze_requests[chat_id]["text"])
-        bot.send_message(chat_id, "✅ Now send the image.")
-        analyze_requests[chat_id]["step"] = "await_image"
-        return
+            # Check for URL in text
+            url_pattern = r"https?://[^\s]+"  # Matches http:// or https:// followed by non-whitespace characters
+            urls = re.findall(url_pattern, result)
 
-    if step == "await_image" and message.content_type == 'photo':
-        file_id = message.photo[-1].file_id
-        file_info = bot.get_file(file_id)
-        downloaded_file = bot.download_file(file_info.file_path)
-        analyze_requests[chat_id]["image_path"] = save_file(downloaded_file, "jpg")
-        process_analysis(chat_id, message)
-        return
+            if urls:
+                final_result, web_facts = resourceHandler(url=urls[0], text=message.text, analyze_misinformation=True)
 
-    bot.send_message(chat_id, "❌ Unexpected input. Please follow the instructions.")
+            else:
+                # Perform web search
+                web_facts = web_search(result)[0]  # Get first search summary
+                
+                # Final analysis including web search facts
+                final_result = final_analysis(original_content=result, summaries=web_facts)
+            
+            bot.send_message(chat_id, f"Extracted Text: {result}")
+            bot.send_message(chat_id, f"Web Search Findings: {web_facts}")
+            bot.send_message(chat_id, f"Final Verdict: {final_result}")
 
-# ✅ Function to process the analysis
-def process_analysis(chat_id, message):
-    user_text = analyze_requests[chat_id].get("text")
-    image_path = analyze_requests[chat_id].get("image_path")
-    
-    if user_text and image_path:
-        bot.send_message(chat_id, "⏳ Analyzing both text and image for misinformation...")
-    elif user_text:
-        bot.send_message(chat_id, "⏳ Analyzing text content for misinformation...")
-    elif image_path:
-        bot.send_message(chat_id, "⏳ Analyzing image content for misinformation...")
-    
-    result = im2text(text_input=user_text, image_path=image_path)
-    web_search_result = web_search(result)
-    bot.send_message(chat_id, result)
-    bot.send_message(chat_id, web_search_result)
+        # Remove the user from analyze_requests after processing
+        analyze_requests.pop(chat_id, None)
 
-    # Remove user from analyze_requests after processing
-    analyze_requests.pop(chat_id, None)
 
 # ✅ Start polling (ONLY ONCE)
 try:

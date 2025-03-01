@@ -15,7 +15,9 @@ from textscraper import scrape_article
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
 from video_to_transcript import process_video
-from groqllm_prompted import check_misinformation
+from groqllm_prompted import final_analysis
+from exallm import web_search
+
 
 # time for unique file names
 dl_time = int(time.time()) - 1740840000
@@ -29,19 +31,19 @@ EDCLIENT_API_TOKEN = os.getenv("EDCLIENT_API_TOKEN")
 client = EDClient(EDCLIENT_API_TOKEN)
 
 
-def resourceHandler(url: str, analyze_misinformation=True):
+def resourceHandler(url: str, text: str, analyze_misinformation=True):
     """
     Router that determines the type of resource and calls the appropriate handler
-
+    
     Args:
         url (str): URL of the resource to handle
         analyze_misinformation (bool): Whether to analyze the resource for misinformation
-
+        
     Returns:
         dict: Contains paths to downloaded resources and analysis results
     """
     result = {"resource_path": None, "transcript": None, "misinformation_analysis": None}
-
+    
     if "tiktok" in url:
         result["resource_path"] = tiktokHandler(url)
     elif "youtu" in url:
@@ -52,19 +54,22 @@ def resourceHandler(url: str, analyze_misinformation=True):
         # For text articles, we'll just scrape and return the content
         article_content = scrape_article(url)
         result["transcript"] = article_content
-
+        
     # If we have a video resource and analysis is requested, get the transcript
     if result["resource_path"] and analyze_misinformation:
         # Extract the transcript from the video
         print(f"Extracting transcript from {result['resource_path']}...")
         result["transcript"] = process_video(result["resource_path"])
-
+    
     # If we have a transcript and analysis is requested, analyze for misinformation
     if result["transcript"] and analyze_misinformation:
         print("Analyzing transcript for misinformation...")
-        result["misinformation_analysis"] = check_misinformation(text_input=result["transcript"])
-
-    return result
+        print(result["transcript"], type(result["transcript"]))
+        total_input = text + "\n" + str(result["transcript"])
+        web_facts = web_search(total_input)[0]
+        result["misinformation_analysis"] = final_analysis(original_content=total_input, summaries=web_facts)
+        
+    return result["misinformation_analysis"], web_facts
 
 
 def tiktokHandler(url: str):
@@ -111,7 +116,7 @@ def youtubeHandler(url: str):
         ys = yt.streams.get_highest_resolution()
     assert ys != None, "No video streams found"
     ys.download(output_path="resource", filename=f"youtube_{dl_time}.mp4")
-    captions = yt.captions['a.en'].save_captions(os.path.join("resource",f"youtube_cc_{dl_time}.txt"))
+    captions = yt.captions['a.en'].save_captions(os.path.join("resource",f"youtube_cc_{dl_time}"))
     return os.path.join("resource", f"youtube_{dl_time}.mp4")
 
 
@@ -119,11 +124,12 @@ def youtubeHandler(url: str):
 if __name__ == "__main__":
     url = "http://www.youtube.com/watch?v=FW2XOIxaNqg"
     result = resourceHandler(url)
-
+    
     print("\nResource path:", result["resource_path"])
-
+    
     if result["transcript"]:
         print("\nTranscript excerpt (first 2000 chars):", result["transcript"][:2000] + "...")
-
+    
     if result["misinformation_analysis"]:
         print("\nMisinformation Analysis:\n", result["misinformation_analysis"])
+
