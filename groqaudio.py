@@ -1,6 +1,10 @@
 import os
 from groq import Groq
-from constants import GROQ_API_TOKEN
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GROQ_API_TOKEN = os.getenv("GROQ_API_TOKEN")
 
 # Initialize the Groq client
 client = Groq(api_key=GROQ_API_TOKEN)

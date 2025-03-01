@@ -1,6 +1,10 @@
 from groq import Groq
-from constants import GROQ_API_TOKEN
 import base64, os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GROQ_API_TOKEN = os.getenv("GROQ_API_TOKEN")
 
 # Function to encode the image
 def encode_image(image_path):

@@ -1,6 +1,10 @@
 from groq import Groq
-from constants import GROQ_API_TOKEN
 import base64, os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GROQ_API_TOKEN = os.getenv("GROQ_API_TOKEN")
 
 # Path to your image
 image_path = os.path.join("resource", "kitten.jpg")
