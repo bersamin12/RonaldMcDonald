@@ -47,13 +47,13 @@ def request_analysis(message):
 def handle_callback_query(call):
     chat_id = call.message.chat.id
     user_id = call.from_user.id
-    
+
     if chat_id not in analyze_requests or analyze_requests[chat_id]["user_id"] != user_id:
         return
-    
+
     mode = call.data
     analyze_requests[chat_id]["mode"] = mode
-    
+
     if mode == "single":
         bot.send_message(chat_id, "✅ Send text or an image for analysis.")
         analyze_requests[chat_id]["step"] = "await_input"
@@ -74,7 +74,7 @@ def handle_analysis_input(message):
         return  # Ignore messages if /analyze wasn't triggered by the user
 
     step = analyze_requests[chat_id].get("step")
-    
+
     if step == "await_input" and message.content_type in ['text', 'photo']:
         if message.content_type == 'text':
             analyze_requests[chat_id]["text"] = message.text
@@ -85,13 +85,13 @@ def handle_analysis_input(message):
             analyze_requests[chat_id]["image_path"] = save_file(downloaded_file, "jpg")
         process_analysis(chat_id, message)
         return
-    
+
     if step == "await_text" and message.content_type == 'text':
         analyze_requests[chat_id]["text"] = message.text
         bot.send_message(chat_id, "✅ Now send the image.")
         analyze_requests[chat_id]["step"] = "await_image"
         return
-    
+
     if step == "await_image" and message.content_type == 'photo':
         file_id = message.photo[-1].file_id
         file_info = bot.get_file(file_id)
@@ -99,7 +99,7 @@ def handle_analysis_input(message):
         analyze_requests[chat_id]["image_path"] = save_file(downloaded_file, "jpg")
         process_analysis(chat_id, message)
         return
-    
+
     bot.send_message(chat_id, "❌ Unexpected input. Please follow the instructions.")
 
 # ✅ Function to process the analysis

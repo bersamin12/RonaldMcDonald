@@ -5,10 +5,12 @@ It is the responsibility of the calling script to delete the resource after cons
 # Basic deps
 import requests
 import os, time, json
+from dotenv import load_dotenv
 
 from ensembledata.api import EDClient
-import constants # make a constants.py file and define API keys
+# import constants # make a constants.py file and define API keys
 from textscraper import scrape_article
+
 # YouTube resource getter
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
@@ -20,7 +22,9 @@ dl_time = int(time.time()//10000)
 # flag to enable actual API calls
 USE_API = False
 
-client = EDClient(constants.EDCLIENT_API_TOKEN)
+load_dotenv()
+EDCLIENT_API_TOKEN = os.getenv("EDCLIENT_API_TOKEN")
+client = EDClient(EDCLIENT_API_TOKEN)
 
 
 def resourceHandler(url: str):
@@ -85,6 +89,6 @@ def youtubeHandler(url: str):
 
 
 if __name__ == "__main__":
-    # url = "https://www.instagram.com/reels/DFoV0rzP68Y/"
-    # print(instagramHandler(url))
+    url = "https://www.instagram.com/reels/DFoV0rzP68Y/"
+    print(instagramHandler(url))
     pass
